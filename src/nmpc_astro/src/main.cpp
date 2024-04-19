@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include "nmcp_navigation.hpp"
+#include "nmpc_ros.hpp"
 
 int main(int argc, char * argv[])
 {

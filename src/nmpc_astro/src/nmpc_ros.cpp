@@ -1,4 +1,4 @@
-#include "nmcp_navigation.hpp"
+#include "nmpc_ros.hpp"
 
 using std::placeholders::_1;
 

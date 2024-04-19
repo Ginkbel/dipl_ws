@@ -29,7 +29,7 @@ set(dependencies
 
 include_directories(include)
 
-add_executable(${PROJECT_NAME}_node src/main.cpp src/nmcp_navigation.cpp src/nmcp.cpp)
+add_executable(${PROJECT_NAME}_node src/main.cpp src/nmpc_ros.cpp src/nmcp.cpp)
 
 add_library(${PROJECT_NAME}_core SHARED 
   src/nmcp.cpp
