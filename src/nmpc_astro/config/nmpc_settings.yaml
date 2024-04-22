@@ -1,0 +1,4 @@
+nmpc_settings:
+  ros__parameters:
+    stateOpti: false
+    referencePoseOrTrajectory: 0

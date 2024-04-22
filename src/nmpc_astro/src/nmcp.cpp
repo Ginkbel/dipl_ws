@@ -15,7 +15,7 @@ namespace nmpc_controller
         u_ = opti_.variable(nu_, T_); // Decision variable control trajectory
         p_ = opti_.parameter(nx_, 1); // Initial state
 
-        _x_ref = opti_.parameter(nx_, T_+1); // Reference state trajectory
+        _x_ref = opti_.parameter(nx_, T_); // Reference state trajectory
         _u_ref = opti_.parameter(nu_, T_); // Reference control trajectory
 
         // Objective function (quadratic) state and control
@@ -78,7 +78,7 @@ namespace nmpc_controller
         opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2, 0.2})));
         opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({1.0, 1.0, 1.0})));
 
-        opti_.set_value(_x_ref, casadi::DM::zeros(nx_, T_+1));
+        opti_.set_value(_x_ref, casadi::DM::zeros(nx_, T_));
         opti_.set_value(_u_ref, casadi::DM::zeros(nu_, T_));
 
         u_init = casadi::DM::repmat({0, 0}, 1, T_);
@@ -125,29 +125,33 @@ namespace nmpc_controller
     void NMPCController::setReference(const std::vector<double> x_ref) {
 
         // Addign each colum of the reference trajectory to the decision variable
-        opti_.set_value(_x_ref, casadi::DM::repmat(x_ref, 1, T_+1));
+        opti_.set_value(_x_ref, casadi::DM::repmat(x_ref, 1, T_));
 
     }
     
-    void NMPCController::setReferenceTrajectory(int mpc_iter) {
-        
-        std::vector<double> x_ref;
-        std::vector<double> u_ref = {0.5, 0}; // straight line tracking; v^2 = x_dot^2 + y_dot^2
-
-        double current_time = mpc_iter*dt_;
-        double predicted_time;
-
+    void NMPCController::setReferenceTrajectory(double normalized_time) {
+        // Figure 8 trajectory
+                
+        casadi::DM x_ref_matrix = casadi::DM::zeros(nx_, T_);
+        casadi::DM u_ref_matrix = casadi::DM::zeros(nu_, T_);
         for (int i = 0; i < T_; i++)
         {
-            predicted_time = current_time + i*dt_;
-            x_ref = {0.5*predicted_time, 1, 0};
-            // opti_.set_value(_x_ref, x_ref);
+            double x_dot = 0.1*cos(0.1*normalized_time);
+            double y_dot = 0.1*cos(0.05*normalized_time);
+            
+            double x_dot_dot = -0.01*sin(0.1*normalized_time);
+            double y_dot_dot = -0.005*sin(0.05*normalized_time);
+
+            double theta_dot = (x_dot*y_dot_dot - y_dot*x_dot_dot)/(pow(x_dot, 2) + pow(y_dot,2));
+            
+            x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sin(normalized_time/10.), 2*sin(normalized_time/20.), 0.0});
+            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x_dot, theta_dot});
+
+            normalized_time += dt_;
         }
-        opti_.set_value(_u_ref, casadi::DM::repmat(u_ref, 1, T_));
-    }
 
-    void NMPCController::setDt(double dt) {
-        dt_ = dt;
-    }
+        opti_.set_value(_x_ref, x_ref_matrix);
+        opti_.set_value(_u_ref, u_ref_matrix);
 
+    }
 }

@@ -2,6 +2,7 @@
 #define NMPC_H
 
 #include <casadi/casadi.hpp>
+#include <iostream>
 
 // Turtlebot constraints
 #define MAX_LINEAR_VELOCITY 0.75   // m s-1
@@ -18,9 +19,8 @@ class NMPCController {
       void setUp();
       std::vector<double> solve(const std::vector<double> x0);
       void setReference(const std::vector<double> x_ref);
-      void setReferenceTrajectory(int mpc_iter);
-      void setDt(double dt);
-    
+      void setReferenceTrajectory(const double normalized_time);
+          
     private:
       casadi::Opti opti_;
       int T_; // horizon
