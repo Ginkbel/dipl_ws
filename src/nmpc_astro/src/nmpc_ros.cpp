@@ -6,11 +6,13 @@ NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), wait_timeout_(300)
 {
 
   this->declare_parameter("stateOpti", false);
+  this->declare_parameter("publishPath", false);
   this->declare_parameter("referencePoseOrTrajectory", 0);
 
   control_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 1);
 
   this->get_parameter<bool>("stateOpti", stateOpti);
+  this->get_parameter<bool>("publishPath", publishPath);
   this->get_parameter<int>("referencePoseOrTrajectory", referencePoseOrTrajectory);
 
   if (stateOpti)
@@ -30,6 +32,11 @@ NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), wait_timeout_(300)
   {
     goal_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>("/goal_pose", 1, std::bind(&NMPCControllerROS::setGoal, this, _1));
 
+  }
+
+  if (publishPath)
+  {
+    path_pub_ = this->create_publisher<nav_msgs::msg::Path>("/nmpc_path", 1);
   }
 
   using rclcpp::contexts::get_global_default_context;
@@ -72,11 +79,18 @@ void NMPCControllerROS::setGoal(const geometry_msgs::msg::PoseStamped::SharedPtr
 
 void NMPCControllerROS::controlLoop()
 {
+  std::vector<double> u0 = {0.0, 0.0};
+  casadi::DM x_solution_0 = casadi::DM::zeros(3, 40);
+
+  std::pair<std::vector<double>, casadi::DM> empty_solution = {u0, x_solution_0};
+
+  solution = (!x0.empty()) ? nmpc_.solve(x0) : empty_solution;
+  
+  u_opt = solution.first;
+  casadi::DM x_solution = solution.second;
+
   if (is_goal_set && !x0.empty() && referencePoseOrTrajectory == 0)
   {
-    std::vector<double> u0 = {0.0, 0.0};
-    u_opt = (!x0.empty() && is_goal_set) ? nmpc_.solve(x0) : u0;
-
     double dist = sqrt(pow(x0[0] - x_ref[0], 2) + pow(x0[1] - x_ref[1], 2) +  pow(x0[2] - x_ref[2], 2));
     // TODO: terminal cost pa da ne treba taj clan?
     if (dist < 0.1)
@@ -101,7 +115,7 @@ void NMPCControllerROS::controlLoop()
     }
   }
 
-  if (referencePoseOrTrajectory == 1 && !x0.empty())
+  if (!x0.empty() && referencePoseOrTrajectory == 1)
   {
       present = this->get_clock()->now();
       if (past.seconds() == 0)
@@ -113,10 +127,7 @@ void NMPCControllerROS::controlLoop()
       normalized_time += delta_t;
 
       nmpc_.setReferenceTrajectory(normalized_time);
-      RCLCPP_INFO(this->get_logger(), "Time [s] %f", normalized_time);
-
-      std::vector<double> u0 = {0.0, 0.0};
-      u_opt = (!x0.empty()) ? nmpc_.solve(x0) : u0;
+      // RCLCPP_INFO(this->get_logger(), "Time [s] %f", normalized_time);
 
       geometry_msgs::msg::Twist cmd_vel;
       
@@ -127,6 +138,30 @@ void NMPCControllerROS::controlLoop()
       control_pub_->publish(cmd_vel);
 
       past = present;
+  }
+
+  if (publishPath)
+  {
+    nav_msgs::msg::Path path_msg;
+    path_msg.header.stamp = this->get_clock()->now();
+    path_msg.header.frame_id = "odom"; 
+
+    int num_states = x_solution.size2();
+
+    for (int i = 0; i < num_states; ++i)
+    {
+        geometry_msgs::msg::PoseStamped pose_stamped;
+        pose_stamped.header.stamp = path_msg.header.stamp;
+        pose_stamped.header.frame_id = path_msg.header.frame_id;
+
+        // Extract position and orientation from x_solution
+        pose_stamped.pose.position.x = static_cast<double>(x_solution(0, i));
+        pose_stamped.pose.position.y = static_cast<double>(x_solution(1, i));
+        pose_stamped.pose.position.z = 0;
+
+        path_msg.poses.push_back(pose_stamped);
+    }
+    path_pub_->publish(path_msg);
   }
 }
 

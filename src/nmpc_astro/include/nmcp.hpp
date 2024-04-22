@@ -17,7 +17,7 @@ class NMPCController {
     public:
       NMPCController();
       void setUp();
-      std::vector<double> solve(const std::vector<double> x0);
+      std::pair<std::vector<double>, casadi::DM> solve(const std::vector<double> x0);
       void setReference(const std::vector<double> x_ref);
       void setReferenceTrajectory(const double normalized_time);
           

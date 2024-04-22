@@ -78,7 +78,7 @@ namespace nmpc_controller
 
     }
 
-    std::vector<double> NMPCController::solve(const std::vector<double> x0) {
+    std::pair<std::vector<double>, casadi::DM> NMPCController::solve(const std::vector<double> x0) {
 
         // Set the initial guess
         opti_.set_initial(x_, x_init);
@@ -94,12 +94,12 @@ namespace nmpc_controller
         std::vector<double> control;
         casadi::Matrix<double> u0 = solution.value(u_)(casadi::Slice(), 0);
         control = u0.get_elements();
-         
+
         // warm start
         x_init = solution.value(x_)(casadi::Slice(), casadi::Slice());
         u_init = solution.value(u_)(casadi::Slice(), casadi::Slice());
 
-        return control;
+        return {control, x_init};
     }
 
     casadi::MX NMPCController::kinematics(const casadi::MX& x, const casadi::MX& u, const double dt) {
