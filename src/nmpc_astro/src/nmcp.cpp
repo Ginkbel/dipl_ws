@@ -55,14 +55,6 @@ namespace nmpc_controller
         opti_.subject_to(opti_.bounded(-MAX_LINEAR_VELOCITY, u_(0), MAX_LINEAR_VELOCITY));
         opti_.subject_to(opti_.bounded(-MAX_ANGULAR_VELOCITY, u_(1), MAX_ANGULAR_VELOCITY));
 
-        // Constraints of state variables
-
-        // opti_.subject_to(opti_.bounded(-2, x_(0), 2));
-        // opti_.subject_to(opti_.bounded(-2, x_(1), 2));
-        // opti_.subject_to(opti_.bounded(-2.07, x_(0), 2.07));
-        // opti_.subject_to(opti_.bounded(-2.9, x_(1), 2.9));
-        // opti_.subject_to(opti_.bounded(-M_PI, x_(2), M_PI));
-
         opti_.subject_to(x_(casadi::Slice(), 0) == p_);
 
         solver_options_["ipopt.print_level"] = 0;
@@ -152,6 +144,5 @@ namespace nmpc_controller
 
         opti_.set_value(_x_ref, x_ref_matrix);
         opti_.set_value(_u_ref, u_ref_matrix);
-
     }
 }

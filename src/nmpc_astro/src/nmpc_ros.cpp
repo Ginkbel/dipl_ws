@@ -2,7 +2,7 @@
 
 using std::placeholders::_1;
 
-NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), mpc_iter(0)
+NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), wait_timeout_(300)
 {
 
   this->declare_parameter("stateOpti", false);
@@ -31,6 +31,25 @@ NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), mpc_iter(0)
     goal_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>("/goal_pose", 1, std::bind(&NMPCControllerROS::setGoal, this, _1));
 
   }
+
+  using rclcpp::contexts::get_global_default_context;
+
+  // On node shutdown sets robot velocity to zero
+  get_global_default_context()->add_pre_shutdown_callback(
+  [this]() {
+    this->timer_->cancel();
+
+    geometry_msgs::msg::Twist cmd_vel;
+    cmd_vel.linear.x = 0.0;
+    cmd_vel.linear.y = 0.0;
+    cmd_vel.linear.z = 0.0;
+    cmd_vel.angular.z = 0.0;
+    control_pub_->publish(cmd_vel);
+
+    this->wait_for_all_acked();
+
+  });
+
   timer_ = this->create_wall_timer(16.667ms, std::bind(&NMPCControllerROS::controlLoop, this)); // rate is 60Hz (16.667ms)
 
   is_goal_set = false;
@@ -70,7 +89,6 @@ void NMPCControllerROS::controlLoop()
       cmd_vel.linear.z = 0.0;
       cmd_vel.angular.z = 0.0;
       control_pub_->publish(cmd_vel);
-      // mpc_iter++;
     }
     else
     {
@@ -80,7 +98,6 @@ void NMPCControllerROS::controlLoop()
       cmd_vel.linear.z = 0.0;
       cmd_vel.angular.z = u_opt[1];
       control_pub_->publish(cmd_vel);
-      // mpc_iter++;
     }
   }
 
@@ -108,7 +125,6 @@ void NMPCControllerROS::controlLoop()
       cmd_vel.linear.z = 0.0;
       cmd_vel.angular.z = u_opt[1];
       control_pub_->publish(cmd_vel);
-
 
       past = present;
   }
@@ -138,4 +154,18 @@ void NMPCControllerROS::setCurrentStateOpti(const geometry_msgs::msg::PoseStampe
 
   // RCLCPP_INFO(this->get_logger(), "Current state: x: %f, y: %f, theta: %f", x0[0], x0[1], yaw_);
 
+}
+
+void NMPCControllerROS::wait_for_all_acked()
+{
+  if (control_pub_->wait_for_all_acked(wait_timeout_)) {
+    RCLCPP_INFO(
+      this->get_logger(),
+      "All subscribers acknowledge messages");
+  } else {
+    RCLCPP_INFO(
+      this->get_logger(),
+      "Not all subscribers acknowledge messages during %" PRId64 " ms",
+      static_cast<int64_t>(wait_timeout_.count()));
+  }
 }

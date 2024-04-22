@@ -6,6 +6,7 @@
 #include "tf2_ros/transform_listener.h"
 
 #include <chrono>
+#include <cinttypes>
 
 #include "nmcp.hpp"
 
@@ -30,11 +31,12 @@ class NMPCControllerROS : public rclcpp::Node
     std::vector<double> u_opt;
     std::vector<double> x_ref;
     std::vector<double> x0;
-    size_t mpc_iter;
+    std::chrono::milliseconds wait_timeout_;    
     rclcpp::Time present, past;
   	double normalized_time = 0.0;
     void setGoal(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
     void setCurrentState(const nav_msgs::msg::Odometry::SharedPtr msg);
     void setCurrentStateOpti(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
     void controlLoop();
+    void wait_for_all_acked();
 };

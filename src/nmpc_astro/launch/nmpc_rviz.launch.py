@@ -8,6 +8,7 @@ from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch_ros.actions import Node
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
+import yaml
 
 import xacro
 
@@ -22,12 +23,15 @@ def generate_launch_description():
     xacro_file = os.path.join(pkg_path,'description','astro.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_file)
 
-    params = {'robot_description': robot_description_config.toxml(), 'use_sim_time': use_sim_time}
+    config_dir = os.path.join(get_package_share_directory('nmpc_astro'), 'config')
+    param_config = os.path.join(config_dir, "nmpc_settings.yaml")
+
+    params1 = {'robot_description': robot_description_config.toxml(), 'use_sim_time': use_sim_time}
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
-        parameters=[params]
+        parameters=[params1]
     )
 
     rviz_config_file = PathJoinSubstitution([FindPackageShare("astro"), "rviz", "view_robot.rviz"])
@@ -46,11 +50,17 @@ def generate_launch_description():
         condition=IfCondition(run_jspg)
     )
 
+    with open(param_config, 'r') as f:
+        params2 = yaml.safe_load(f)["nmpc_settings"]["ros__parameters"]
+        
     nmpc_node = Node(
-        package='nmpc_astro',
-        executable='nmpc_astro_node',
-        name='nmpc_astro_node',
-        output='screen'
+            package='nmpc_astro',
+            executable='nmpc_astro_node',
+            name='nmpc_astro_node',
+            output='screen',
+            parameters = [
+                params2
+            ]
     )
 
     return LaunchDescription([
