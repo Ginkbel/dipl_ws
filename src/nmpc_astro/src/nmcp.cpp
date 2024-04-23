@@ -90,7 +90,7 @@ namespace nmpc_controller
         // Solve the optimization problem
         casadi::OptiSol solution = opti_.solve();
 
-        // Get the optimal control u and push in the control vector
+        // The first value is control vector
         std::vector<double> control;
         casadi::Matrix<double> u0 = solution.value(u_)(casadi::Slice(), 0);
         control = u0.get_elements();
@@ -104,7 +104,7 @@ namespace nmpc_controller
 
     casadi::MX NMPCController::kinematics(const casadi::MX& x, const casadi::MX& u, const double dt) {
         
-        // kinematics of diff robot
+        // kinematics of diff drive robot
         casadi::MX xdot(nx_, 1);
 
         xdot(0) = u(0)*cos(x(2));
@@ -116,7 +116,6 @@ namespace nmpc_controller
 
     void NMPCController::setReference(const std::vector<double> x_ref) {
 
-        // Addign each colum of the reference trajectory to the decision variable
         opti_.set_value(_x_ref, casadi::DM::repmat(x_ref, 1, T_));
 
     }
