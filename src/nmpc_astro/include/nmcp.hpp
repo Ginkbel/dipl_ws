@@ -3,12 +3,14 @@
 
 #include <casadi/casadi.hpp>
 #include <iostream>
+#include <algorithm>
 
-// Turtlebot constraints
-#define MAX_LINEAR_VELOCITY 0.75   // m s-1
-#define MAX_ANGULAR_VELOCITY 5.1   // rad s-1
-#define MAX_DELTA_VELOCITY 1.5   // m s-2
-#define MAX_DELTA_OMEGA M_PI/2.0   // rad s-1
+// Astro constraints
+#define MAX_LINEAR_VELOCITY 0.15   // m s-1
+#define MAX_ANGULAR_VELOCITY 1.0  // rad s-1
+#define MAX_DELTA_VELOCITY 0.3   // m s-2
+#define MAX_DELTA_OMEGA M_PI/6.0   // rad s-1
+
 
 namespace nmpc_controller
 {
@@ -19,8 +21,8 @@ class NMPCController {
       void setUp();
       std::pair<std::vector<double>, casadi::DM> solve(const std::vector<double> x0);
       void setReference(const std::vector<double> x_ref);
-      void setReferenceTrajectory(const double normalized_time);
-          
+      void setReferenceTrajectoryFigure8(double normalized_time);
+      void setReferenceTrajectoryCircular(double normalized_time);
     private:
       casadi::Opti opti_;
       int T_; // horizon
@@ -39,10 +41,11 @@ class NMPCController {
       casadi::MX u_;
       casadi::DM u_init;
       casadi::MX J_;
-
       casadi::MX kinematics(const casadi::MX& x, const casadi::MX& u, const double dt);
     
   };
 }
 
 #endif
+
+float unwrap(float previous_angle, float new_angle);

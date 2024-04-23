@@ -1,5 +1,5 @@
 nmpc_settings:
   ros__parameters:
     stateOpti: false
-    publishPath: false
-    referencePoseOrTrajectory: 0
+    publishPath: true
+    referencePoseOrTrajectory: 2

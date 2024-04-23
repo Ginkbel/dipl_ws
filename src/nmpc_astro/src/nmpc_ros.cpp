@@ -87,7 +87,6 @@ void NMPCControllerROS::controlLoop()
   solution = (!x0.empty()) ? nmpc_.solve(x0) : empty_solution;
   
   u_opt = solution.first;
-  casadi::DM x_solution = solution.second;
 
   if (is_goal_set && !x0.empty() && referencePoseOrTrajectory == 0)
   {
@@ -115,7 +114,7 @@ void NMPCControllerROS::controlLoop()
     }
   }
 
-  if (!x0.empty() && referencePoseOrTrajectory == 1)
+  if (!x0.empty() && (referencePoseOrTrajectory == 1 || referencePoseOrTrajectory == 2))
   {
       present = this->get_clock()->now();
       if (past.seconds() == 0)
@@ -126,7 +125,14 @@ void NMPCControllerROS::controlLoop()
 
       normalized_time += delta_t;
 
-      nmpc_.setReferenceTrajectory(normalized_time);
+      if (referencePoseOrTrajectory == 1)
+      {
+        nmpc_.setReferenceTrajectoryFigure8(normalized_time);
+      }
+      else if (referencePoseOrTrajectory == 2)
+      {
+        nmpc_.setReferenceTrajectoryCircular(normalized_time);
+      }
       // RCLCPP_INFO(this->get_logger(), "Time [s] %f", normalized_time);
 
       geometry_msgs::msg::Twist cmd_vel;
@@ -142,13 +148,15 @@ void NMPCControllerROS::controlLoop()
 
   if (publishPath)
   {
+    casadi::DM x_solution = solution.second;
+    
     nav_msgs::msg::Path path_msg;
     path_msg.header.stamp = this->get_clock()->now();
     path_msg.header.frame_id = "odom"; 
 
     int num_states = x_solution.size2();
 
-    for (int i = 0; i < num_states; ++i)
+    for (int i = 0; i < num_states; i++)
     {
         geometry_msgs::msg::PoseStamped pose_stamped;
         pose_stamped.header.stamp = path_msg.header.stamp;

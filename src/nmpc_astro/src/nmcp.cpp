@@ -120,29 +120,95 @@ namespace nmpc_controller
         opti_.set_value(_x_ref, casadi::DM::repmat(x_ref, 1, T_));
 
     }
-    
-    void NMPCController::setReferenceTrajectory(double normalized_time) {
+
+    void NMPCController::setReferenceTrajectoryFigure8(double normalized_time) {
+        
         // Figure 8 trajectory
-                
         casadi::DM x_ref_matrix = casadi::DM::zeros(nx_, T_);
         casadi::DM u_ref_matrix = casadi::DM::zeros(nu_, T_);
+        
+        double a = 1.5;  // Amplitude for x position
+        double b = 1;  // Amplitude for y position
+        double omega = M_PI / 25.0; // Angular frequency for timing
+        double theta_prev = 0.0;
+
         for (int i = 0; i < T_; i++)
         {
-            double x_dot = 0.1*cos(0.1*normalized_time);
-            double y_dot = 0.1*cos(0.05*normalized_time);
-            
-            double x_dot_dot = -0.01*sin(0.1*normalized_time);
-            double y_dot_dot = -0.005*sin(0.05*normalized_time);
+            // Positions
+            double t = omega * normalized_time;
+            double x = a * sin(t);
+            double y = b * sin(t) * cos(t);
 
-            double theta_dot = (x_dot*y_dot_dot - y_dot*x_dot_dot)/(pow(x_dot, 2) + pow(y_dot,2));
+            // Velocities
+            double x_dot = a * omega * cos(t);
+            double y_dot = b * (cos(2*t) * omega);
+
+            // Accelerations
+            double x_dot_dot = -a * omega * omega * sin(t);
+            double y_dot_dot = -b * 2 * sin(2*t) * omega * omega;
+
+            // Angle theta calculation assumes simple kinematic model where theta is the direction of velocity
+            double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
+
+            // Angular velocity (theta_dot) can be derived from cross derivative of velocity components
+            double theta_dot = (x_dot * y_dot_dot - y_dot * x_dot_dot) / (x_dot * x_dot + y_dot * y_dot);
             
-            x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sin(normalized_time/10.), 2*sin(normalized_time/20.), 0.0});
-            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x_dot, theta_dot});
+            x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x, y, theta});
+            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
 
             normalized_time += dt_;
+            theta_prev = theta;
         }
 
         opti_.set_value(_x_ref, x_ref_matrix);
         opti_.set_value(_u_ref, u_ref_matrix);
     }
+
+    void NMPCController::setReferenceTrajectoryCircular(double normalized_time) {
+        
+        // Circular trajectory
+        casadi::DM x_ref_matrix = casadi::DM::zeros(nx_, T_);
+        casadi::DM u_ref_matrix = casadi::DM::zeros(nu_, T_);
+        
+        double R = 1.0;  // Radius of the circle
+        double omega = M_PI / 15.0; // Angular frequency for timing
+        double theta_prev = 0.0;
+
+        for (int i = 0; i < T_; i++)
+        {
+            // Positions
+            double t = omega * normalized_time;
+            double x = R * cos(t);
+            double y = R * sin(t);
+
+            // Velocities
+            double x_dot = -R * omega * sin(t);
+            double y_dot = R * omega * cos(t);
+
+            // Accelerations
+            double x_dot_dot = -R * omega * omega * cos(t);
+            double y_dot_dot = -R * omega * omega * sin(t);
+
+            // Angle theta calculation assumes simple kinematic model where theta is the direction of velocity
+            double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
+
+            // Angular velocity (theta_dot) can be derived from cross derivative of velocity components
+            double theta_dot = (x_dot * y_dot_dot - y_dot * x_dot_dot) / (x_dot * x_dot + y_dot * y_dot);
+            
+            x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x, y, theta});
+            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
+
+            normalized_time += dt_;
+            theta_prev = theta;
+        }
+
+        opti_.set_value(_x_ref, x_ref_matrix);
+        opti_.set_value(_u_ref, u_ref_matrix);
+    }
+}
+
+float unwrap(float previous_angle, float new_angle) {
+    float d = new_angle - previous_angle;
+    d = d > M_PI ? d - 2 * M_PI : (d < -M_PI ? d + 2 * M_PI : d);
+    return previous_angle + d;
 }
