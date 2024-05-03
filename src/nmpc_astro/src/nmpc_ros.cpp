@@ -25,7 +25,7 @@ NMPCControllerROS::NMPCControllerROS() : Node("nmpc_astro"), wait_timeout_(300)
   } 
   else
   {
-    odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/odom", 1, std::bind(&NMPCControllerROS::setCurrentState, this, _1));
+    odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/odometry/filtered", 1, std::bind(&NMPCControllerROS::setCurrentState, this, _1));
   }
   
   if (referencePoseOrTrajectory == 0)

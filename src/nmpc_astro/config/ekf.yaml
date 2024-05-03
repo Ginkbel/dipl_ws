@@ -1,0 +1,68 @@
+ekf_filter_node:
+    ros__parameters:
+        frequency: 200.0
+        two_d_mode: true
+        publish_acceleration: true
+        print_diagnostics: true
+
+        odom_frame: odom
+        base_link_frame: base_footprint  
+        world_frame: odom
+
+        publish_tf: true
+        
+        odom0: /odom
+        odom0_config: [true,  true,  false,
+                       false, false, true,
+                       true, false, false,
+                       false, false, true,
+                       false, false, false]   
+        odom0_relative: true
+        # odom0_differential: true
+
+        imu0: /camera/imu
+        imu0_config:   [false,  false,  false,
+                       false, false, true,
+                       false, false, false,
+                       true, true, true,
+                       true, true, true]
+
+        imu0_relative: true
+
+        # imu0_differential: true
+
+        # imu0_remove_gravitational_acceleration: true
+
+        # control_config: [true, false, false, false, false, true]
+
+        # acceleration_limits: [0.1, 0.0, 0.0, 0.0, 0.0, 0.5]
+
+        # # Acceleration and deceleration limits are not always the same for robots.
+        # deceleration_limits: [0.1, 0.0, 0.0, 0.0, 0.0, 0.5]
+
+        # # If your robot cannot instantaneously reach its acceleration limit, the permitted change can be controlled with these
+        # # gains
+        # acceleration_gains: [0.8, 0.0, 0.0, 0.0, 0.0, 0.9]
+
+        # # If your robot cannot instantaneously reach its deceleration limit, the permitted change can be controlled with these
+        # # gains
+        # deceleration_gains: [1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+
+
+        process_noise_covariance: [0.05, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.05, 0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.06, 0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.03, 0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.03, 0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.06, 0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.025, 0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.025, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.04, 0.0,    0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.01, 0.0,    0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.01, 0.0,    0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.02, 0.0,    0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.01, 0.0,    0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.01, 0.0,
+                                   0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.0,     0.0,     0.0,    0.0,    0.0,    0.0,    0.0,    0.0,    0.015]
+
+        # initial_estimate_covariance: [1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9, 1e-9]

@@ -77,7 +77,7 @@ namespace nmpc_controller
         x_init = casadi::DM::repmat({0.0, 0.0, 0.0}, 1, T_+1);
 
     }
-
+    
     std::pair<std::vector<double>, casadi::DM> NMPCController::solve(const std::vector<double> x0) {
 
         // Set the initial guess
@@ -126,9 +126,9 @@ namespace nmpc_controller
         casadi::DM x_ref_matrix = casadi::DM::zeros(nx_, T_);
         casadi::DM u_ref_matrix = casadi::DM::zeros(nu_, T_);
         
-        double a = 1.5;  // Amplitude for x position
-        double b = 1;  // Amplitude for y position
-        double omega = M_PI / 25.0; // Angular frequency for timing
+        double a = 1;  // Amplitude for x position
+        double b = 0.75;  // Amplitude for y position
+        double omega = M_PI / 30.0; // Angular frequency for timing
         double theta_prev = 0.0;
 
         for (int i = 0; i < T_; i++)
