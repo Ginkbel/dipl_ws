@@ -1,5 +1,5 @@
-Diplomski rad
+Diplomski rad: Modelsko prediktivno upravljanje mobilnim robotom
 
-Modelsko prediktivno upravljanje mobilnim robotom
+Autor: Jurica Vučković
 
-Jurica Vučković
+FSB Zagreb, 2024. godina
