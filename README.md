@@ -1,5 +1,13 @@
-Diplomski rad: Modelsko prediktivno upravljanje mobilnim robotom
+Master's thesis: Model Predictive Control of a Differential Drive Robot
 
-Autor: Jurica Vučković
+
+
+
+
+
+
+
+
+Author: Jurica Vučković
 
 FSB Zagreb, 2024. godina
