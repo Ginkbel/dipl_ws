@@ -160,7 +160,7 @@ namespace nmpc_controller
         }
 
         opti_.set_value(_x_ref, x_ref_matrix);
-        opti_.set_value(_u_ref, u_ref_matrix);
+        // opti_.set_value(_u_ref, u_ref_matrix);
     }
 
     void NMPCController::setReferenceTrajectoryCircular(double normalized_time) {
@@ -202,7 +202,7 @@ namespace nmpc_controller
         }
 
         opti_.set_value(_x_ref, x_ref_matrix);
-        opti_.set_value(_u_ref, u_ref_matrix);
+        // opti_.set_value(_u_ref, u_ref_matrix);
     }
 }
 
