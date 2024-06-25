@@ -29,10 +29,10 @@ set(dependencies
 
 include_directories(include)
 
-add_executable(${PROJECT_NAME}_node src/main.cpp src/nmpc_ros.cpp src/nmcp.cpp)
+add_executable(${PROJECT_NAME}_node src/main.cpp src/nmpc_ros.cpp src/nmpc.cpp)
 
 add_library(${PROJECT_NAME}_core SHARED 
-  src/nmcp.cpp
+  src/nmpc.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}_node

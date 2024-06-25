@@ -1,4 +1,4 @@
-#include "nmcp.hpp"
+#include "nmpc.hpp"
 
 namespace nmpc_controller
 {

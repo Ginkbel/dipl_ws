@@ -9,7 +9,7 @@
 #include <chrono>
 #include <cinttypes>
 
-#include "nmcp.hpp"
+#include "nmpc.hpp"
 
 using namespace std::chrono_literals;
 
