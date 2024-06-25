@@ -147,13 +147,14 @@ namespace nmpc_controller
             double y_dot_dot = -b * 2 * sin(2*t) * omega * omega;
 
             // Angle theta calculation assumes simple kinematic model where theta is the direction of velocity
-            double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
-
+            // double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
+            double theta = tan2(y_dot, x_dot);
+     
             // Angular velocity (theta_dot) can be derived from cross derivative of velocity components
             double theta_dot = (x_dot * y_dot_dot - y_dot * x_dot_dot) / (x_dot * x_dot + y_dot * y_dot);
             
             x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x, y, theta});
-            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
+            // u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
 
             normalized_time += dt_;
             theta_prev = theta;
@@ -189,13 +190,14 @@ namespace nmpc_controller
             double y_dot_dot = -R * omega * omega * sin(t);
 
             // Angle theta calculation assumes simple kinematic model where theta is the direction of velocity
-            double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
+            // double theta = unwrap(theta_prev, atan2(y_dot, x_dot));
+            double theta = tan2(y_dot, x_dot);
 
             // Angular velocity (theta_dot) can be derived from cross derivative of velocity components
             double theta_dot = (x_dot * y_dot_dot - y_dot * x_dot_dot) / (x_dot * x_dot + y_dot * y_dot);
             
             x_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({x, y, theta});
-            u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
+            // u_ref_matrix(casadi::Slice(), i) = casadi::DM::vertcat({sqrt(x_dot*x_dot + y_dot*y_dot), theta_dot});
 
             normalized_time += dt_;
             theta_prev = theta;
