@@ -67,7 +67,7 @@ namespace nmpc_controller
 
         //paper values
         opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({5.0, 5.0, 0.1})));               
-        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2, 0.2})));
+        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({5, 1.5})));
         opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({1.0, 1.0, 1.0})));
 
         opti_.set_value(_x_ref, casadi::DM::zeros(nx_, T_));

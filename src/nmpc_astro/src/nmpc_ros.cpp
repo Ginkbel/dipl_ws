@@ -92,7 +92,7 @@ void NMPCControllerROS::controlLoop()
   {
     double dist = sqrt(pow(x0[0] - x_ref[0], 2) + pow(x0[1] - x_ref[1], 2) +  pow(x0[2] - x_ref[2], 2));
     // TODO: terminal cost pa da ne treba taj clan?
-    if (dist < 0.1)
+    if (dist < 0.009)
     {
       RCLCPP_INFO(this->get_logger(), "Goal reached!");
       is_goal_set = false;
