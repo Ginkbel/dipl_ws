@@ -8,7 +8,7 @@ from launch_ros.descriptions import ComposableNode
 def generate_launch_description():
     server_arg = DeclareLaunchArgument(
         'server',
-        default_value='192.168.0.103',
+        default_value='192.168.0.102',
         description='VRPN server address')
 
     port_arg = DeclareLaunchArgument(
