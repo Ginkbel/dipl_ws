@@ -10,7 +10,7 @@ namespace nmpc_controller
 
     void NMPCController::setUp() {
 
-        // Define the symbolic variables
+        // Definitions of symbolic variables
         x_ = opti_.variable(nx_, T_+1); // Decision variable state trajectory
         u_ = opti_.variable(nu_, T_); // Decision variable control trajectory
         p_ = opti_.parameter(nx_, 1); // Initial state
@@ -18,7 +18,7 @@ namespace nmpc_controller
         _x_ref = opti_.parameter(nx_, T_); // Reference state trajectory
         _u_ref = opti_.parameter(nu_, T_); // Reference control trajectory
 
-        // Objective function (quadratic) state and control
+        // Cost function matrices
         Q = opti_.parameter(nx_, nx_); // State cost matrix
         R = opti_.parameter(nu_, nu_); // Control cost matrix
         P = opti_.parameter(nx_, nx_); // Terminal cost matrix
@@ -45,13 +45,14 @@ namespace nmpc_controller
         
         opti_.minimize(J_);
 
-        // // acceleration constraints
+        // Constraints on accelaration
         for (int i = 0; i < T_-1; i++) {
             auto dvel = (u_(casadi::Slice(), i+1) - u_(casadi::Slice(), i))/dt_;
             opti_.subject_to(opti_.bounded(-MAX_DELTA_VELOCITY, dvel(0), MAX_DELTA_VELOCITY));
             opti_.subject_to(opti_.bounded(-MAX_DELTA_OMEGA, dvel(1), MAX_DELTA_OMEGA));
         }
 
+        // Velocity constraints
         opti_.subject_to(opti_.bounded(-MAX_LINEAR_VELOCITY, u_(0), MAX_LINEAR_VELOCITY));
         opti_.subject_to(opti_.bounded(-MAX_ANGULAR_VELOCITY, u_(1), MAX_ANGULAR_VELOCITY));
 
@@ -63,12 +64,13 @@ namespace nmpc_controller
         solver_options_["ipopt.tol"] = 1e-8;
         solver_options_["print_time"] = 0;
         solver_options_["ipopt.acceptable_obj_change_tol"] = 1e-6;
+
         opti_.solver("ipopt", solver_options_);
 
         //paper values
-        opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({5.0, 5.0, 0.1})));               
-        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2, 0.5})));
-        opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({1.0, 1.0, 1.0})));
+        opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({10.0, 7.5, 0.1})));               
+        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2.0, 0.2})));
+        opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({50.0, 25.0, 2.5})));
 
         opti_.set_value(_x_ref, casadi::DM::zeros(nx_, T_));
         opti_.set_value(_u_ref, casadi::DM::zeros(nu_, T_));
@@ -80,22 +82,21 @@ namespace nmpc_controller
     
     std::pair<std::vector<double>, casadi::DM> NMPCController::solve(const std::vector<double> x0) {
 
-        // Set the initial guess
+        // Setting initial state and control trajectory
         opti_.set_initial(x_, x_init);
         opti_.set_initial(u_, u_init);
 
-        // Set the initial state
+        // Setting the initial state (from ROS2 node current odometry state)
         opti_.set_value(p_, x0);
 
-        // Solve the optimization problem
         casadi::OptiSol solution = opti_.solve();
 
-        // The first value is control vector
+        // Extracting control vector
         std::vector<double> control;
         casadi::Matrix<double> u0 = solution.value(u_)(casadi::Slice(), 0);
         control = u0.get_elements();
 
-        // warm start
+        // For next step state and control trajectory initialization (based on previous optimal trajectories)
         x_init = solution.value(x_)(casadi::Slice(), casadi::Slice());
         u_init = solution.value(u_)(casadi::Slice(), casadi::Slice());
 
@@ -103,8 +104,7 @@ namespace nmpc_controller
     }
 
     casadi::MX NMPCController::kinematics(const casadi::MX& x, const casadi::MX& u, const double dt) {
-        
-        // kinematics of diff drive robot
+        // ASTRO kinematics
         casadi::MX xdot(nx_, 1);
 
         xdot(0) = u(0)*cos(x(2));
@@ -128,7 +128,7 @@ namespace nmpc_controller
         
         double a = 1;  // Amplitude for x position
         double b = 0.75;  // Amplitude for y position
-        double omega = M_PI / 30.0; // Angular frequency for timing
+        double omega = M_PI / 37.5; // Angular frequency for timing
         double theta_prev = 0.0;
 
         for (int i = 0; i < T_; i++)

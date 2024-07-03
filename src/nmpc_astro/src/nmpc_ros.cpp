@@ -90,28 +90,28 @@ void NMPCControllerROS::controlLoop()
 
   if (is_goal_set && !x0.empty() && referencePoseOrTrajectory == 0)
   {
-    double dist = sqrt(pow(x0[0] - x_ref[0], 2) + pow(x0[1] - x_ref[1], 2) +  pow(x0[2] - x_ref[2], 2));
-    // TODO: terminal cost pa da ne treba taj clan?
-    if (dist < 0.009)
-    {
-      RCLCPP_INFO(this->get_logger(), "Goal reached!");
-      is_goal_set = false;
-      geometry_msgs::msg::Twist cmd_vel;
-      cmd_vel.linear.x = 0.0;
-      cmd_vel.linear.y = 0.0;
-      cmd_vel.linear.z = 0.0;
-      cmd_vel.angular.z = 0.0;
-      control_pub_->publish(cmd_vel);
-    }
-    else
-    {
+
       geometry_msgs::msg::Twist cmd_vel;
       cmd_vel.linear.x = u_opt[0];
       cmd_vel.linear.y = 0.0;
       cmd_vel.linear.z = 0.0;
       cmd_vel.angular.z = u_opt[1];
       control_pub_->publish(cmd_vel);
-    }
+
+      // When the control inputs are small, the goal pose is reached and the node waits for a new one
+      double u_value = sqrt(pow(u_opt[0], 2) + pow(u_opt[1], 2));
+      
+      if (u_value < 0.001) 
+      {
+        RCLCPP_INFO(this->get_logger(), "Goal reached!");
+        is_goal_set = false;
+        geometry_msgs::msg::Twist cmd_vel;
+        cmd_vel.linear.x = 0.0;
+        cmd_vel.linear.y = 0.0;
+        cmd_vel.linear.z = 0.0;
+        cmd_vel.angular.z = 0.0;
+        control_pub_->publish(cmd_vel);
+      }
   }
 
   if (!x0.empty() && (referencePoseOrTrajectory == 1 || referencePoseOrTrajectory == 2))
