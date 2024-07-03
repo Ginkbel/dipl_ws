@@ -6,8 +6,10 @@
 #include <algorithm>
 
 // Astro constraints
-#define MAX_LINEAR_VELOCITY 0.25   // m s-1
-#define MAX_ANGULAR_VELOCITY 1.0  // rad s-1
+#define MAX_LINEAR_VELOCITY 0.25   // m s-1    ==> figure 8 0.15
+#define MAX_ANGULAR_VELOCITY 1.0  // rad s-1   ==> figure 8 0.285
+// #define MAX_LINEAR_VELOCITY 0.15   // m s-1
+// #define MAX_ANGULAR_VELOCITY 0.285  // rad s-1 
 #define MAX_DELTA_VELOCITY 0.1   // m s-2
 #define MAX_DELTA_OMEGA M_PI/8.0   // rad s-1
 

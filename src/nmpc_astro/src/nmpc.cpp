@@ -66,9 +66,9 @@ namespace nmpc_controller
         opti_.solver("ipopt", solver_options_);
 
         //paper values
-        opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({5.0, 5.0, 0.1})));               
-        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2, 0.2})));
-        opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({1.0, 1.0, 1.0})));
+        opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({10.0, 7.5, 0.1})));               
+        opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2.0, 0.2})));
+        opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({50.0, 25.0, 2.5})));
 
         opti_.set_value(_x_ref, casadi::DM::zeros(nx_, T_));
         opti_.set_value(_u_ref, casadi::DM::zeros(nu_, T_));
