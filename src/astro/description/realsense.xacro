@@ -67,6 +67,24 @@
       </inertial>
     </link>
 
+    <!-- camera IMU frame joint and link -->
+    <joint name="imu_transformed_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="camera_link"/>
+        <child link="imu_transformed_frame"/>
+    </joint>
+
+    <link name="imu_transformed_frame"/>
+
+    <!-- Optical frame for the IMU -->
+    <joint name="imu_transformed_optical_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0  0 0"/>  <!-- Adjust rpy values here -->
+        <parent link="imu_transformed_frame"/>
+        <child link="imu_transformed_optical_frame"/>
+    </joint>
+
+    <link name="imu_transformed_optical_frame"/>
+
     <!-- Use the nominal extrinsics between camera frames if the calibrated extrinsics aren't being published. e.g. running the device in simulation  -->
       <!-- camera depth joints and links -->
     <joint name="camera_depth_joint" type="fixed">
