@@ -12,26 +12,26 @@ ekf_filter_node:
         publish_tf: true
         
         odom0: /odom
-        odom0_config: [true,  true,  false,
-                       false, false, true,
+        odom0_config: [false, false, false,
+                       false, false, false,
                        true, false, false,
-                       false, false, true,
+                       false, false, false,
                        false, false, false]   
         odom0_relative: true
         # odom0_differential: true
 
-        # imu0: /imu_transformed
-        # imu0_config:  [false,  false,  false,
-        #                false, false, false,
-        #                false, false, false,
-        #                true, true, true,
-        #                true, false, false]
+        imu0: /imu_transformed
+        imu0_config:  [false,  false,  false,
+                       false, false, false,
+                       false, false, false,
+                       false, false, true,
+                       false, false, false]
 
-        # imu0_relative: true
+        imu0_relative: true
 
-        # # imu0_differential: true
+        # imu0_differential: true
 
-        # imu0_remove_gravitational_acceleration: true
+        imu0_remove_gravitational_acceleration: true
 
         # control_config: [true, false, false, false, false, true]
 

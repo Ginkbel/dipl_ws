@@ -79,6 +79,13 @@ def generate_launch_description():
         ]
         )
 
+    imu_transform = Node(
+        package="imu_transform",
+        executable="imu_transform_node",
+        output="screen",
+        condition=IfCondition(run_ekf)
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument('use_sim_time', default_value='false', description='Use sim time if true'),
         DeclareLaunchArgument('run_jspg', default_value='false', description='Run joint_state_publisher_gui Node'),
@@ -88,5 +95,6 @@ def generate_launch_description():
         jspg_node,
         robot_state_publisher_node,
         nmpc_node,
-        ekf_node
+        ekf_node,
+        imu_transform
     ])
