@@ -133,7 +133,6 @@ void NMPCControllerROS::controlLoop()
       {
         nmpc_.setReferenceTrajectoryCircular(normalized_time);
       }
-      // RCLCPP_INFO(this->get_logger(), "Time [s] %f", normalized_time);
 
       geometry_msgs::msg::Twist cmd_vel;
       

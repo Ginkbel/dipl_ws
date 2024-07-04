@@ -11,12 +11,12 @@ namespace nmpc_controller
     void NMPCController::setUp() {
 
         // Definitions of symbolic variables
-        x_ = opti_.variable(nx_, T_+1); // Decision variable state trajectory
-        u_ = opti_.variable(nu_, T_); // Decision variable control trajectory
-        p_ = opti_.parameter(nx_, 1); // Initial state
+        x_ = opti_.variable(nx_, T_+1);
+        u_ = opti_.variable(nu_, T_);
+        p_ = opti_.parameter(nx_, 1);
 
-        _x_ref = opti_.parameter(nx_, T_); // Reference state trajectory
-        _u_ref = opti_.parameter(nu_, T_); // Reference control trajectory
+        _x_ref = opti_.parameter(nx_, T_);
+        _u_ref = opti_.parameter(nu_, T_);
 
         // Cost function matrices
         Q = opti_.parameter(nx_, nx_); // State cost matrix
@@ -67,7 +67,7 @@ namespace nmpc_controller
 
         opti_.solver("ipopt", solver_options_);
 
-        //paper values
+        // Values for weighing matrices
         opti_.set_value(Q, casadi::DM::diag(casadi::DM::vertcat({10.0, 7.5, 0.1})));               
         opti_.set_value(R, casadi::DM::diag(casadi::DM::vertcat({2.0, 0.2})));
         opti_.set_value(P, casadi::DM::diag(casadi::DM::vertcat({50.0, 25.0, 2.5})));
