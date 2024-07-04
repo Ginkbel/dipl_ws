@@ -8,8 +8,6 @@
 // Astro constraints
 #define MAX_LINEAR_VELOCITY 0.25   // m s-1 
 #define MAX_ANGULAR_VELOCITY 1.0  // rad s-1 
-// #define MAX_LINEAR_VELOCITY 0.15   // m s-1
-// #define MAX_ANGULAR_VELOCITY 0.285  // rad s-1 
 #define MAX_DELTA_VELOCITY 0.1   // m s-2
 #define MAX_DELTA_OMEGA M_PI/8.0   // rad s-1
 
@@ -27,10 +25,10 @@ class NMPCController {
       void setReferenceTrajectoryCircular(double normalized_time);
     private:
       casadi::Opti opti_;
-      int T_; // horizon
-      int nx_; // state size
-      int nu_; // control size
-      double dt_; // sampling time
+      int T_;
+      int nx_; 
+      int nu_;
+      double dt_;
       casadi::Dict solver_options_;
       casadi::MX Q;
       casadi::MX R;
